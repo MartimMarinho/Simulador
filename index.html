@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Poupança & Custo de Vida</title>
+    <!-- Importar uma fonte moderna (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-light);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: #0f172a;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fbfbfe;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .result-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--success);
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .comparison-zone {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Simulador Financeiro Internacional</h1>
+        <p>Insere os teus dados em Portugal e compara o teu poder de poupança com outros países.</p>
+    </header>
+
+    <div class="grid">
+        <!-- CARD 1: INPUTS PORTUGAL -->
+        <div class="card">
+            <h2>1. Os teus dados em Portugal</h2>
+            <form id="simulador-form">
+                <div class="form-group">
+                    <label for="profissao">Profissão</label>
+                    <select id="profissao" required>
+                        <option value="programador">Programador Júnior</option>
+                        <option value="enfermeiro">Enfermeiro</option>
+                        <option value="professor">Professor</option>
+                        <option value="marketing">Especialista de Marketing</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="salario-bruto">Salário Bruto Mensal (€)</label>
+                    <input type="number" id="salario-bruto" value="1400" min="820" required>
+                </div>
+                <div class="form-group">
+                    <label for="horas">Carga Horária Semanal</label>
+                    <input type="number" id="horas" value="40" min="1" max="60" required>
+                </div>
+                <div class="form-group">
+                    <label for="gasto-renda">Renda da Casa / Quarto (€)</label>
+                    <input type="number" id="gasto-renda" value="600" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="gasto-alimentacao">Alimentação e Supermercado (€)</label>
+                    <input type="number" id="gasto-alimentacao" value="250" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="gasto-outros">Outros Gastos (Transportes, Lazer) (€)</label>
+                    <input type="number" id="gasto-outros" value="200" min="0" required>
+                </div>
+                <button type="submit">Calcular Poupança Real</button>
+            </form>
+        </div>
+
+        <!-- CARD 2: RESULTADOS PORTUGAL -->
+        <div class="card id="pt-results-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>2. Análise de Poupança (Portugal)</h2>
+                <div id="pt-initial-msg" style="text-align: center; color: var(--text-light); margin-top: 40px;">
+                    Preenche o formulário ao lado para veres os resultados.
+                </div>
+                
+                <div id="pt-results" class="results-section hidden">
+                    <div class="result-row">
+                        <span>Salário Bruto:</span>
+                        <span id="res-pt-bruto">0.00 €</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Segurança Social (11%):</span>
+                        <span id="res-pt-ss" style="color: #b91c1c;">-0.00 €</span>
+                    </div>
+                    <div class="result-row">
+                        <span>IRS Estimado (Aprox.):</span>
+                        <span id="res-pt-irs" style="color: #b91c1c;">-0.00 €</span>
+                    </div>
+                    <div class="result-row" style="font-weight: 600; margin-top: 5px;">
+                        <span>Salário Líquido Disponível:</span>
+                        <span id="res-pt-liquido">0.00 €</span>
+                    </div>
+                    <div class="result-row" style="margin-top: 15px;">
+                        <span>Total de Despesas Mensais:</span>
+                        <span id="res-pt-gastos" style="color: #b91c1c;">-0.00 €</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Ganho Real por Hora Trabalhada:</span>
+                        <span id="res-pt-hora" style="font-weight: 600;">0.00 €/h</span>
+                    </div>
+                    <div class="result-row total">
+                        <span>Poupança Final Mensal:</span>
+                        <span id="res-pt-poupanca">0.00 €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Escolha de comparação internacional -->
+            <div id="select-country-zone" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--bg);">
+                <div class="form-group">
+                    <label for="pais-comparar" style="color: var(--primary);">✈️ Com que país queres comparar?</label>
+                    <select id="pais-comparar">
+                        <option value="">Escolha um país...</option>
+                        <option value="suica">Suíça 🇨🇭</option>
+                        <option value="irlanda">Irlanda 🇮🇪</option>
+                        <option value="alemanha">Alemanha 🇩🇪</option>
+                        <option value="australia">Australia 🇦🇺</option>
+                        <option value="africa">África do Sul 🇿🇦</option>
+                        <option value="londres">Londres 🇬🇧</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZONA DE COMPARAÇÃO INTERNACIONAL (APARECE DINAMICAMENTE) -->
+        <div id="comparison-zone" class="comparison-zone hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>3. Comparação Direta Lado a Lado</h2>
+                    <span class="badge" id="badge-pais">País</span>
+                </div>
+                
+                <div class="comparison-grid">
+                    <!-- Coluna Portugal Repetida para foco -->
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px;">
+                        <h3 style="font-size: 1rem; margin-bottom: 10px; color: #475569;">Em Portugal 🇵🇹</h3>
+                        <div class="result-row"><span>Salário Líquido:</span><span id="comp-pt-sal">0 €</span></div>
+                        <div class="result-row"><span>Custo de Vida:</span><span id="comp-pt-gasto">0 €</span></div>
+                        <div class="result-row" style="font-weight: bold; border-top: 1px solid var(--border); padding-top: 5px; margin-top: 5px;">
+                            <span>Poupança:</span><span id="comp-pt-poup" style="color: var(--success);">0 €</span>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Estrangeiro Dinâmica -->
+                    <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                        <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--primary);" id="comp-estrangeiro-titulo">No Estrangeiro</h3>
+                        <div class="result-row"><span>Salário Médio Líquido:</span><span id="comp-est-sal">0 €</span></div>
+                        <div class="result-row"><span>Custo de Vida Médio:</span><span id="comp-est-gasto">0 €</span></div>
+                        <div class="result-row" style="font-weight: bold; border-top: 1px solid #bfdbfe; padding-top: 5px; margin-top: 5px;">
+                            <span>Poupança Média:</span><span id="comp-est-poup" style="color: var(--success);">0 €</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="conclusao-texto" style="margin-top: 20px; padding: 12px; background: #f0fdf4; border-radius: 8px; color: #166534; font-weight: 600; text-align: center;">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Dados Médios de Mercado (Salários Líquidos médios por profissão e custos de vida nesses países)
+    const dadosPaises = {
+        suica: {
+            nome: "Suíça 🇨🇭",
+            custoVida: 2400, // Renda + comida + seguro obrigatório médio
+            salarios: { programador: 5200, enfermeiro: 4800, professor: 5000, marketing: 4400 }
+        },
+        irlanda: {
+            nome: "Irlanda 🇮🇪",
+            custoVida: 1600, // Alto custo de renda em Dublin
+            salarios: { programador: 3200, enfermeiro: 2600, professor: 2700, marketing: 2500 }
+        },
+        alemanha: {
+            nome: "Alemanha 🇩🇪",
+            custoVida: 1200,
+            salarios: { programador: 2900, enfermeiro: 2200, professor: 2600, marketing: 2100 }
+        },
+
+        australia: {
+            nome: "Australia 🇦🇺",
+            custoVida: 2000,
+            salarios: { programador: 4500, enfermeiro: 3500, professor: 3800, marketing: 3200 }
+        },
+
+        africa: {
+            nome: "África do Sul 🇿🇦",
+            custoVida: 800,
+            salarios: { programador: 1500, enfermeiro: 1200, professor: 1000, marketing: 900 }
+        },
+
+        londres: {
+            nome: "Londres 🇬🇧",
+            custoVida: 1800,
+            salarios: { programador: 4000, enfermeiro: 3000, professor: 3200, marketing: 2800 }
+        }
+
+    };
+
+    // Variáveis Globais para guardar os calculos de PT e reutilizar na comparação
+    let ptLiquidoGlobal = 0;
+    let ptGastosGlobal = 0;
+    let ptPoupancaGlobal = 0;
+
+    // 2. Escutar o Submit do Formulário de Portugal
+    document.getElementById('simulador-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Capturar valores
+        const profissao = document.getElementById('profissao').value;
+        const bruto = parseFloat(document.getElementById('salario-bruto').value);
+        const horasSemanais = parseFloat(document.getElementById('horas').value);
+        const renda = parseFloat(document.getElementById('gasto-renda').value);
+        const alimentacao = parseFloat(document.getElementById('gasto-alimentacao').value);
+        const outros = parseFloat(document.getElementById('gasto-outros').value);
+
+        // Lógica de Impostos aproximada de Portugal
+        const segSocial = bruto * 0.11;
+        let taxaIrs = 0.08; // 8% para salários mais baixos
+        if (bruto > 1200) taxaIrs = 0.12;
+        if (bruto > 2000) taxaIrs = 0.18;
+        const irs = bruto * taxaIrs;
+
+        const liquido = bruto - segSocial - irs;
+        const totalGastos = renda + alimentacao + outros;
+        const poupancaFinal = liquido - totalGastos;
+
+        // Ganho por hora (4.33 semanas por mês em média)
+        const ganhoPorHora = liquido / (horasSemanais * 4.33);
+
+        // Guardar nas globais
+        ptLiquidoGlobal = liquido;
+        ptGastosGlobal = totalGastos;
+        ptPoupancaGlobal = poupancaFinal;
+
+        // Atualizar a interface do Card de Portugal
+        document.getElementById('res-pt-bruto').innerText = bruto.toFixed(2) + " €";
+        document.getElementById('res-pt-ss').innerText = "-" + segSocial.toFixed(2) + " €";
+        document.getElementById('res-pt-irs').innerText = "-" + irs.toFixed(2) + " €";
+        document.getElementById('res-pt-liquido').innerText = liquido.toFixed(2) + " €";
+        document.getElementById('res-pt-gastos').innerText = "-" + totalGastos.toFixed(2) + " €";
+        document.getElementById('res-pt-hora').innerText = ganhoPorHora.toFixed(2) + " €/h";
+        
+        const poupElem = document.getElementById('res-pt-poupanca');
+        poupElem.innerText = poupancaFinal.toFixed(2) + " €";
+        poupElem.style.color = poupancaFinal >= 0 ? "var(--success)" : "#b91c1c";
+
+        // Mostrar os resultados e esconder a mensagem inicial
+        document.getElementById('pt-initial-msg').classList.add('hidden');
+        document.getElementById('pt-results').classList.remove('hidden');
+        
+        // Revelar a pergunta do país seguinte
+        document.getElementById('select-country-zone').classList.remove('hidden');
+
+        // Se o país de comparação já estiver selecionado, atualiza também a tabela de baixo automaticamente
+        atualizarComparacao();
+    });
+
+    // 3. Escutar a mudança de seleção do País Estrangeiro
+    document.getElementById('pais-comparar').addEventListener('change', atualizarComparacao);
+
+    function atualizarComparacao() {
+        const paisSelecionado = document.getElementById('pais-comparar').value;
+        const zoneComparacao = document.getElementById('comparison-zone');
+
+        if (!paisSelecionado) {
+            zoneComparacao.add('hidden');
+            return;
+        }
+
+        const profissao = document.getElementById('profissao').value;
+        const dadosDestino = dadosPaises[paisSelecionado];
+        
+        // Buscar salário médio da profissão e custo de vida do país alvo
+        const estSalario = dadosDestino.salarios[profissao];
+        const estCusto = dadosDestino.custoVida;
+        const estPoupanca = estSalario - estCusto;
+
+        // Injetar dados na tabela comparativa
+        document.getElementById('badge-pais').innerText = dadosDestino.nome;
+        document.getElementById('comp-estrangeiro-titulo').innerText = "Na " + dadosDestino.nome;
+
+        // Dados de Portugal colocados lado a lado
+        document.getElementById('comp-pt-sal').innerText = ptLiquidoGlobal.toFixed(0) + " €";
+        document.getElementById('comp-pt-gasto').innerText = ptGastosGlobal.toFixed(0) + " €";
+        document.getElementById('comp-pt-poup').innerText = ptPoupancaGlobal.toFixed(0) + " €";
+        document.getElementById('comp-pt-poup').style.color = ptPoupancaGlobal >= 0 ? "var(--success)" : "#b91c1c";
+
+        // Dados do Estrangeiro colocados lado a lado
+        document.getElementById('comp-est-sal').innerText = estSalario.toFixed(0) + " €";
+        document.getElementById('comp-est-gasto').innerText = estCusto.toFixed(0) + " €";
+        document.getElementById('comp-est-poup').innerText = estPoupanca.toFixed(0) + " €";
+
+        // Gerar frase de conclusão de forma inteligente
+        const conclusaoBox = document.getElementById('conclusao-texto');
+        if (estPoupanca > ptPoupancaGlobal) {
+            const diferenca = estPoupanca - ptPoupancaGlobal;
+            conclusaoBox.innerText = `💡 Emigrar para este país permitiria poupar mais cerca de ${diferenca.toFixed(0)}€ por mês na tua profissão!`;
+            conclusaoBox.style.background = "#f0fdf4";
+            conclusaoBox.style.color = "#166534";
+        } else {
+            conclusaoBox.innerText = `🏠 Com os teus gastos atuais, Portugal continua a ser uma opção financeiramente equilibrada face a este destino!`;
+            conclusaoBox.style.background = "#fff7ed";
+            conclusaoBox.style.color = "#c2410c";
+        }
+
+        // Mostrar a secção
+        zoneComparacao.classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
